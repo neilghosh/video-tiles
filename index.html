@@ -11,6 +11,11 @@
 
 <body>
   <div />Controls
+  <label for="Feeds">Choose a car:</label>
+  <select name="Feeds" id="feeds" onchange="renderVideos()">
+    <option value="eclipse">Solar Eclipse 21-JUNE-2020</option>
+    <option value="default">Earth From Sky</option>
+  </select> 
   <button onclick="stopAll()">Stop All</button>
   <button onclick="playAll()">Start All</button>
   <button onclick="muteAll()">Mute All</button>
