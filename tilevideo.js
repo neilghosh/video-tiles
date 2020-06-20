@@ -31,7 +31,7 @@ feeds["space"] = spaceVideos;
 feeds["myvideos"] = myeVideos;
 
 const DEFAULT_FEED = "eclipse";
-const DEFAULT_FEED_STORAGE_KEY = "defaultFeed";
+const DEFAULT_FEED_STORAGE_KEY = "default_feed";
 const CUSTOM_VIDEOS_STORAGE_KEY = "my_videos";
 
 var localVideo = [];
@@ -55,12 +55,16 @@ function getVideosFromFeed() {
 
 function renderPlayers() {
   clearPlayers();
-  var localVideo = JSON.parse(localStorage.getItem($("#feeds").val()+CUSTOM_VIDEOS_STORAGE_KEY));
+  var localVideo = JSON.parse(localStorage.getItem(getLocalVideosForCurrentFeed()));
   videos = getVideosFromFeed();
   videos = videos.concat(localVideo);
   videos.forEach((obj, i) => {
     addVideo("player" + i, obj.key)
   })
+}
+
+function getLocalVideosForCurrentFeed() {
+  return $("#feeds").val()+"_"+CUSTOM_VIDEOS_STORAGE_KEY;
 }
 
 function clearPlayers() {
@@ -73,7 +77,7 @@ function addNewVideo() {
   var playerId = "player" + (players.length + 1);
   addVideo(playerId, videoId);
   localVideo.push({ key: videoId, title: "" });
-  localStorage.setItem($("#feeds").val()+CUSTOM_VIDEOS_STORAGE_KEY, JSON.stringify(localVideo));
+  localStorage.setItem(getLocalVideosForCurrentFeed(), JSON.stringify(localVideo));
 }
 
 function addVideo(videoId, key) {
