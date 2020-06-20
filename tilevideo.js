@@ -21,10 +21,14 @@ var spaceVideos = [
   { key: "5_rLJNq7Rw8", title: "Earth From Sace" }
 ];
 
+var myeVideos = [
+];
+
 
 var feeds = [];
 feeds["eclipse"] = eclipseVideos;
 feeds["space"] = spaceVideos;
+feeds["myvideos"] = myeVideos;
 
 const DEFAULT_FEED = "eclipse";
 const DEFAULT_FEED_STORAGE_KEY = "defaultFeed";
@@ -51,7 +55,7 @@ function getVideosFromFeed() {
 
 function renderPlayers() {
   clearPlayers();
-  var localVideo = JSON.parse(localStorage.getItem(CUSTOM_VIDEOS_STORAGE_KEY));
+  var localVideo = JSON.parse(localStorage.getItem($("#feeds").val()+CUSTOM_VIDEOS_STORAGE_KEY));
   videos = getVideosFromFeed();
   videos = videos.concat(localVideo);
   videos.forEach((obj, i) => {
@@ -69,7 +73,7 @@ function addNewVideo() {
   var playerId = "player" + (players.length + 1);
   addVideo(playerId, videoId);
   localVideo.push({ key: videoId, title: "" });
-  localStorage.setItem(CUSTOM_VIDEOS_STORAGE_KEY, JSON.stringify(localVideo));
+  localStorage.setItem($("#feeds").val()+CUSTOM_VIDEOS_STORAGE_KEY, JSON.stringify(localVideo));
 }
 
 function addVideo(videoId, key) {
