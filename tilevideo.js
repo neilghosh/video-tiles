@@ -1,6 +1,7 @@
 var players = [];
 
 var eclipseVideos = [
+  //{ key: "cfgR2xc5S0s", title: "SPACE India" },
   { key: "rD6IeVB9Ayk", title: "Eithiopia" },
   { key: "-DnLP7e3XX0", title: "Sirsa" },
   { key: "jmnj-k_mt2Q", title: "Hanle" },
@@ -13,7 +14,7 @@ var eclipseVideos = [
   { key: "3jYS_XKoJ6g", title: "Taiwan" },
 ];
 
-var defaultVideos = [
+var spaceVideos = [
   { key: "EEIk7gwjgIM", title: "NASA ISS Live Stream" },
   { key: "DDU-rZs-Ic4", title: "Space Official" },
   { key: "21X5lGlDOfg", title: "NASA TV" },
@@ -23,16 +24,23 @@ var defaultVideos = [
 
 var feeds = [];
 feeds["eclipse"] = eclipseVideos;
-feeds["default"] = defaultVideos;
+feeds["space"] = spaceVideos;
+
+const DEFAULT_FEED = "eclipse";
+const DEFAULT_FEED_STORAGE_KEY = "defaultFeed";
+const CUSTOM_VIDEOS_STORAGE_KEY = "my_videos";
 
 var localVideo = [];
 
 function onYouTubeIframeAPIReady() {
-  renderPlayers(defaultVideos);
+  var defaultFeed = localStorage.getItem(DEFAULT_FEED_STORAGE_KEY) == undefined ? DEFAULT_FEED : localStorage.getItem(DEFAULT_FEED_STORAGE_KEY);
+  $("#feeds").val(defaultFeed);
+  renderPlayers(feeds[defaultFeed]);
 }
 
 function renderVideos() {
   videos = getVideosFromFeed()
+  localStorage.setItem(DEFAULT_FEED_STORAGE_KEY, $("#feeds").val());
   renderPlayers(videos);
 }
 
@@ -43,7 +51,7 @@ function getVideosFromFeed() {
 
 function renderPlayers() {
   clearPlayers();
-  var localVideo = JSON.parse(localStorage.getItem("videos"));
+  var localVideo = JSON.parse(localStorage.getItem(CUSTOM_VIDEOS_STORAGE_KEY));
   videos = getVideosFromFeed();
   videos = videos.concat(localVideo);
   videos.forEach((obj, i) => {
@@ -61,7 +69,7 @@ function addNewVideo() {
   var playerId = "player" + (players.length + 1);
   addVideo(playerId, videoId);
   localVideo.push({ key: videoId, title: "" });
-  localStorage.setItem("videos", JSON.stringify(localVideo));
+  localStorage.setItem(CUSTOM_VIDEOS_STORAGE_KEY, JSON.stringify(localVideo));
 }
 
 function addVideo(videoId, key) {
@@ -83,6 +91,7 @@ function addVideo(videoId, key) {
 }
 
 function onPlayerReady(event) {
+  event.target.mute();
   event.target.playVideo();
 }
 
@@ -94,7 +103,7 @@ function onPlayerStateChange(event) {
 
 function resetVideos() {
   localVideo = [];
-  localStorage.setItem("videos", JSON.stringify(localVideo))
+  localStorage.setItem(CUSTOM_VIDEOS_STORAGE_KEY, JSON.stringify(localVideo))
   renderPlayers();
 }
 
