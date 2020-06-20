@@ -2,20 +2,27 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="tilevideo.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-5167155-1"></script>
   <script>
-  
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-5167155-1');
   </script>
+
 </head>
 <style>
 </style>
 
 <body>
   <div />Controls
-  <label for="Feeds">Choose a car:</label>
+  <label for="Feeds">Choose a Feed:</label>
   <select name="Feeds" id="feeds" onchange="renderVideos()">
     <option value="eclipse">Solar Eclipse 21-JUNE-2020</option>
     <option value="default">Earth From Sky</option>
-  </select> 
+  </select>
   <button onclick="stopAll()">Stop All</button>
   <button onclick="playAll()">Start All</button>
   <button onclick="muteAll()">Mute All</button>
