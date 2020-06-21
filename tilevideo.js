@@ -2,12 +2,17 @@ var players = [];
 
 var eclipseVideos = [
   //{ key: "cfgR2xc5S0s", title: "SPACE India" },
-  { key: "-DnLP7e3XX0", title: "Sirsa" },
-  { key: "jmnj-k_mt2Q", title: "Hanle" },
-  { key: "R2BIMJ3a7Hs", title: "India" },
+  { key: "G8dnQIOdcSU", title: "SAASST" },
   { key: "MzbKNkVzi-c", title: "Rajasthan" },
+  { key: "OVEisGxVfNs", title: "Space Official" },
+  { key: "jmnj-k_mt2Q", title: "Hanle" },
+  { key: "5juhJCPBFYc", title: "Dubai" },
+  { key: "_fWGAVARV7g", title: " Tamilnadu" },
+  { key: "-DnLP7e3XX0", title: "Sirsa" },
   { key: "hstNxjrNfXw", title: "Kodaikanal" },
   { key: "eQzDgwpKZFk", title: "Okinawa" },
+  { key: "R2BIMJ3a7Hs", title: "India" },
+
   { key: "rD6IeVB9Ayk", title: "Eithiopia" },
   { key: "RyRDDZhIh1c", title: "Irkutsk" },
   { key: "GXI3_n4prMs", title: "TURKEY" },
