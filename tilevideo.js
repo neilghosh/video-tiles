@@ -1,21 +1,15 @@
 var players = [];
 
 var eclipseVideos = [
-  //{ key: "cfgR2xc5S0s", title: "SPACE India" },
-  { key: "M5t14F-ivNY", title: "Sirsa" },
-  { key: "G8dnQIOdcSU", title: "SAASST" },
-  { key: "MzbKNkVzi-c", title: "Rajasthan" },
-  { key: "jmnj-k_mt2Q", title: "Hanle" },
-  { key: "5juhJCPBFYc", title: "Dubai" },
-  { key: "_fWGAVARV7g", title: " Tamilnadu" },
-  { key: "R2BIMJ3a7Hs", title: "India" },
-  { key: "RyRDDZhIh1c", title: "Irkutsk" },
-  { key: "GXI3_n4prMs", title: "TURKEY" },
-  { key: "56rpzC0RA04", title: "Kurukshetra" },
-  { key: "_tEab2xekhQ", title: "Suratgarh" },
-  { key: "3jYS_XKoJ6g", title: "Taiwan" },
-  { key: "hstNxjrNfXw", title: "Kodaikanal" },
-  { key: "eQzDgwpKZFk", title: "Okinawa" },
+  { key: "7S6dhT1voAo", title: "Time And Date" },
+  { key: "cJ9fDbx7QkM", title: " CosmoSapiens" },
+  { key: "PzhAKnc5EyE", title: "The Telegraph" },
+  { key: "qWuUIHYLm28", title: "Data Visualized" },
+  { key: "aeDsepr1aLw", title: "The Independent" },
+  { key: "T1Kbp3xeOFQ", title: "Lok Vighan Kendra" },
+  { key: "scEYIFoGrh4", title: "catchingphotons" },
+  { key: "p8xk41a2R4k", title: "UFOvni2012"},
+  { key: "21X5lGlDOfg", title: "NASA TV" }
 ];
 
 var spaceVideos = [
