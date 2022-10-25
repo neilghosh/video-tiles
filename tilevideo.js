@@ -1,15 +1,11 @@
 var players = [];
 
 var eclipseVideos = [
-  { key: "7S6dhT1voAo", title: "Time And Date" },
-  { key: "cJ9fDbx7QkM", title: " CosmoSapiens" },
-  { key: "PzhAKnc5EyE", title: "The Telegraph" },
-  { key: "qWuUIHYLm28", title: "Data Visualized" },
-  { key: "aeDsepr1aLw", title: "The Independent" },
-  { key: "T1Kbp3xeOFQ", title: "Lok Vighan Kendra" },
-  { key: "scEYIFoGrh4", title: "catchingphotons" },
-  { key: "p8xk41a2R4k", title: "UFOvni2012"},
-  { key: "21X5lGlDOfg", title: "NASA TV" }
+  { key: "2FKh2xLo4Ek", title: "Royal Observatory Greenwich"},
+  { key: "Zg3O8NnnboA", title: "The Virtual Telescope Project" },
+  { key: "0sx_vuKEGlY", title: "Time & Date" },
+  { key: "U-xv7_fxut4", title: "Space Satellite" },
+  { key: "BDRyWgOMOpw", title: "SteviePAX" }
 ];
 
 var spaceVideos = [
