@@ -4,10 +4,10 @@ var eclipseVideos = [
   { key: "2FKh2xLo4Ek", title: "Royal Observatory Greenwich"},
   { key: "Zg3O8NnnboA", title: "The Virtual Telescope Project" },
   { key: "0sx_vuKEGlY", title: "Time & Date" },
-  { key: "U-xv7_fxut4", title: "Space Satellite" },
   { key: "BDRyWgOMOpw", title: "SteviePAX" },
   { key: "5ZTmKiPlTO8", title: "catchingphotons" },
-  { key: "1nUMDx8PiF4", title: "Chelmsford, UK" } //
+  { key: "1nUMDx8PiF4", title: "Chelmsford, UK" },
+  { key: "U-xv7_fxut4", title: "Space Satellite" }
 ];
 
 var spaceVideos = [
