@@ -5,7 +5,9 @@ var eclipseVideos = [
   { key: "Zg3O8NnnboA", title: "The Virtual Telescope Project" },
   { key: "0sx_vuKEGlY", title: "Time & Date" },
   { key: "U-xv7_fxut4", title: "Space Satellite" },
-  { key: "BDRyWgOMOpw", title: "SteviePAX" }
+  { key: "BDRyWgOMOpw", title: "SteviePAX" },
+  { key: "5ZTmKiPlTO8", title: "catchingphotons" },
+  { key: "5ZTmKiPlTO8", title: "Chelmsford, UK" } //1nUMDx8PiF4
 ];
 
 var spaceVideos = [
