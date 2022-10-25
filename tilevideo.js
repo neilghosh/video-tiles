@@ -7,7 +7,7 @@ var eclipseVideos = [
   { key: "U-xv7_fxut4", title: "Space Satellite" },
   { key: "BDRyWgOMOpw", title: "SteviePAX" },
   { key: "5ZTmKiPlTO8", title: "catchingphotons" },
-  { key: "5ZTmKiPlTO8", title: "Chelmsford, UK" } //1nUMDx8PiF4
+  { key: "1nUMDx8PiF4", title: "Chelmsford, UK" } //
 ];
 
 var spaceVideos = [
