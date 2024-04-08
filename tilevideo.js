@@ -1,13 +1,15 @@
 var players = [];
 
 var eclipseVideos = [
-  { key: "2FKh2xLo4Ek", title: "Royal Observatory Greenwich"},
-  { key: "Zg3O8NnnboA", title: "The Virtual Telescope Project" },
-  { key: "0sx_vuKEGlY", title: "Time & Date" },
-  { key: "BDRyWgOMOpw", title: "SteviePAX" },
-  { key: "5ZTmKiPlTO8", title: "catchingphotons" },
-  { key: "1nUMDx8PiF4", title: "Chelmsford, UK" },
-  { key: "U-xv7_fxut4", title: "Space Satellite" }
+  { key: "P9M_e3JbpLY", title: "Time And Date"},
+  { key: "2MJY_ptQW1o", title: "NASA Official" },
+  { key: "XwQDEzpnYkk", title: "Chuck's Astrophotography" },
+  { key: "Lb1kgHP5g80", title: "GRIFFITH OBSERVATORY" },
+  { key: "7B74-teYM2g", title: "Time" },
+  { key: "T8jK_f4_FiY", title: "Video From Space" },
+  { key: "wQ4U6z5-gxE", title: "The Sun" },
+  { key: "Dzjunyh_v1g", title: "First Post" },
+  { key: "LUAeGft7W6c", title: "Sky News" }
 ];
 
 var spaceVideos = [
