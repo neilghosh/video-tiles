@@ -1,6 +1,7 @@
 // Global variables
 var players = [];
 var localVideo = [];
+var isFullscreenMode = false;
 
 // Video feeds configuration
 var eclipseVideos = [
@@ -16,20 +17,27 @@ var eclipseVideos = [
 ];
 
 var spaceVideos = [
-    { key: "EEIk7gwjgIM", title: "NASA ISS Live Stream" },
-    { key: "DDU-rZs-Ic4", title: "Space Official" },
-    { key: "21X5lGlDOfg", title: "NASA TV" },
-    { key: "5_rLJNq7Rw8", title: "Earth From Space" },
-    { key: "jfKfPfyJRdk", title: "Lofi Space Radio" },
-    { key: "4O2JK_94g3Y", title: "Earth 4K" }
+    { key: "Hj1XwNjvkDE", title: "NASA Live: Earth Views" },
+    { key: "vytmBNhc9ig", title: "NASA Live: ISS Stream" },
+    { key: "fO9e9jnhYK8", title: "NASA Live: Space Station" },
+    { key: "RtU_mdL2vBM", title: "NASA Space Station" }
 ];
 
 var myVideos = [];
+
+var earthcamVideos = [
+    { key: "rnXIjl_Rzy4", title: "Times Square NYC" },
+    { key: "MnyjqGMkzmw", title: "Las Vegas Strip" },
+    { key: "57w2gYXjRic", title: "Abbey Road London" },
+    { key: "yW0OOEO9usE", title: "Waikiki Beach Hawaii" },
+    { key: "qHW8srS0ylo", title: "Bourbon Street New Orleans" }
+];
 
 // Feed configuration
 var feeds = {
     "eclipse": eclipseVideos,
     "space": spaceVideos,
+    "earthcam": earthcamVideos,
     "myvideos": myVideos
 };
 
@@ -178,27 +186,52 @@ function renderPlayers(videos) {
         return;
     }
     
-    videos.forEach((video, index) => {
+    // Arrange videos in optimal grid layout
+    const arrangedVideos = arrangeVideosByAspectRatio(videos);
+    
+    arrangedVideos.forEach((video, index) => {
         if (video && video.key && isValidYouTubeVideoId(video.key)) {
             const playerId = `player_${index}`;
-            addVideo(playerId, video.key, video.title);
+            addVideo(playerId, video.key, video.title, video.aspectClass);
         } else {
             console.warn('Invalid video data:', video);
         }
     });
 }
 
+// Arrange videos by aspect ratio for optimal grid layout
+function arrangeVideosByAspectRatio(videos) {
+    const currentFeed = getCurrentFeed();
+    
+    // Define aspect ratio patterns for different feeds
+    const aspectPatterns = {
+        space: ['wide', 'wide', 'standard', 'standard'], // NASA streams tend to be wide format
+        earthcam: ['wide', 'standard', 'wide', 'standard', 'standard'], // Mixed city/street cams
+        eclipse: ['standard', 'standard', 'standard', 'standard', 'standard', 'standard', 'standard', 'standard', 'standard'] // Default grid
+    };
+    
+    const pattern = aspectPatterns[currentFeed] || aspectPatterns.eclipse;
+    
+    return videos.map((video, index) => {
+        const aspectClass = pattern[index % pattern.length] || 'standard';
+        return {
+            ...video,
+            aspectClass: aspectClass
+        };
+    });
+}
+
 // Add a new video to the container
-function addVideo(playerId, videoId, title) {
+function addVideo(playerId, videoId, title, aspectClass = 'standard') {
     try {
         const container = document.getElementById('container');
         if (!container) {
             throw new Error('Container element not found');
         }
         
-        // Create video wrapper
+        // Create video wrapper with aspect ratio class
         const wrapper = document.createElement('div');
-        wrapper.className = 'video-wrapper new-video';
+        wrapper.className = `video-wrapper new-video ${aspectClass}-aspect`;
         
         // Add title if provided
         if (title) {
@@ -215,10 +248,13 @@ function addVideo(playerId, videoId, title) {
         
         container.appendChild(wrapper);
         
+        // Adjust player dimensions based on aspect ratio
+        const dimensions = getPlayerDimensions(aspectClass);
+        
         // Create YouTube player
         const player = new YT.Player(playerId, {
-            height: '315',
-            width: '560',
+            height: dimensions.height,
+            width: dimensions.width,
             videoId: videoId,
             playerVars: { 
                 'autoplay': 0,  // Don't autoplay by default
@@ -246,10 +282,22 @@ function addVideo(playerId, videoId, title) {
     }
 }
 
+// Get player dimensions based on aspect ratio class
+function getPlayerDimensions(aspectClass) {
+    const baseDimensions = {
+        wide: { width: '640', height: '360' },     // 16:9 wide format
+        standard: { width: '560', height: '315' }, // Standard 16:9
+        square: { width: '400', height: '400' }    // 1:1 for special cams
+    };
+    
+    return baseDimensions[aspectClass] || baseDimensions.standard;
+}
+
 // YouTube player event handlers
 function onPlayerReady(event) {
     console.log('Player ready:', event.target.getVideoData().title);
-    // Don't auto-mute or auto-play by default
+    // Mute all videos by default
+    event.target.mute();
 }
 
 function onPlayerStateChange(event) {
@@ -344,12 +392,16 @@ function playAll() {
         try {
             if (player && typeof player.playVideo === 'function') {
                 player.playVideo();
+                // Ensure videos remain muted when playing
+                if (typeof player.mute === 'function') {
+                    player.mute();
+                }
             }
         } catch (error) {
             console.warn('Error playing player:', error);
         }
     });
-    console.log('Started all videos');
+    console.log('Started all videos (muted)');
 }
 
 function muteAll() {
@@ -382,6 +434,46 @@ function resetVideos() {
     }
 }
 
+// Fullscreen mode functions
+function toggleFullscreenMode() {
+    isFullscreenMode = !isFullscreenMode;
+    const body = document.body;
+    const btn = document.getElementById('fullscreenBtn');
+    
+    if (isFullscreenMode) {
+        body.classList.add('fullscreen-mode');
+        btn.textContent = '🚪 Exit Fullscreen';
+        btn.title = 'Exit fullscreen video mode';
+        
+        // Try to enter browser fullscreen as well
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Browser fullscreen not available:', err);
+            });
+        }
+        
+        console.log('Entered fullscreen mode');
+    } else {
+        body.classList.remove('fullscreen-mode');
+        btn.textContent = '🖥️ Fullscreen Mode';
+        btn.title = 'Toggle fullscreen video mode';
+        
+        // Exit browser fullscreen
+        if (document.exitFullscreen && document.fullscreenElement) {
+            document.exitFullscreen().catch(err => {
+                console.log('Error exiting browser fullscreen:', err);
+            });
+        }
+        
+        console.log('Exited fullscreen mode');
+    }
+    
+    // Re-render videos with new layout
+    setTimeout(() => {
+        renderVideos();
+    }, 100);
+}
+
 // Add keyboard shortcuts
 document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(event) {
@@ -403,6 +495,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 event.preventDefault();
                 muteAll();
                 break;
+            case 'KeyF':
+                event.preventDefault();
+                toggleFullscreenMode();
+                break;
+            case 'Escape':
+                if (isFullscreenMode) {
+                    event.preventDefault();
+                    toggleFullscreenMode();
+                }
+                break;
+        }
+    });
+    
+    // Handle browser fullscreen changes
+    document.addEventListener('fullscreenchange', function() {
+        // If user exits browser fullscreen, also exit our fullscreen mode
+        if (!document.fullscreenElement && isFullscreenMode) {
+            // Don't trigger toggleFullscreenMode to avoid recursion
+            isFullscreenMode = false;
+            document.body.classList.remove('fullscreen-mode');
+            const btn = document.getElementById('fullscreenBtn');
+            if (btn) {
+                btn.textContent = '🖥️ Fullscreen Mode';
+                btn.title = 'Toggle fullscreen video mode';
+            }
+            setTimeout(() => {
+                renderVideos();
+            }, 100);
         }
     });
 });
