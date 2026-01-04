@@ -1,39 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="tilevideo.js"></script>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-5167155-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-
-    gtag('config', 'UA-5167155-1');
-  </script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Tiles - Watch Multiple YouTube Videos Simultaneously</title>
+    <meta name="description" content="Watch multiple YouTube videos simultaneously in a single browser window. Perfect for comparing content or monitoring multiple streams.">
+    
+    <!-- External Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="tilevideo.js"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-5167155-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-5167155-1');
+    </script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .controls label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .controls select, .controls input[type="text"] {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s;
+        }
+        
+        .controls select:focus, .controls input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .controls button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 14px;
+        }
+        
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .controls button:active {
+            transform: translateY(0);
+        }
+        
+        .add-video-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        #newVideo {
+            min-width: 200px;
+        }
+        
+        .separator {
+            margin: 20px 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+        }
+        
+        #container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .video-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .video-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .video-title {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        iframe {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+        }
+        
+        .error-message {
+            background: rgba(255, 99, 71, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .add-video-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            #newVideo {
+                min-width: auto;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            #container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation for new videos */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .video-wrapper.new-video {
+            animation: slideIn 0.5s ease-out;
+        }
+    </style>
 </head>
-<style>
-</style>
-
 <body>
-  <label for="Feeds">Choose a Feed:</label>
-  <select name="Feeds" id="feeds" onchange="renderVideos()">
-    <option value="eclipse" selected>Solar Eclipse 08-APR-2024</option>
-    <option value="space">Earth From Sky</option>
-    <option value="myvideos">My Videos</option>
-  </select>
-  <button onclick="stopAll()">Stop All</button>
-  <button onclick="playAll()">Start All</button>
-  <button onclick="muteAll()">Mute All</button>
-  <button onclick="addNewVideo()">Add Video</button>
-  <input id="newVideo" type="text" value="EEIk7gwjgIM">
-  <button onclick="resetVideos()">Reset All</button>
-
-  <hr>
-  <div>
+    <div class="header">
+        <h1>📺 Video Tiles</h1>
+        <p>Watch multiple YouTube videos simultaneously in one browser window</p>
+        
+        <div class="controls">
+            <label for="feeds">Choose a Feed:</label>
+            <select name="feeds" id="feeds" onchange="renderVideos()">
+                <option value="eclipse" selected>🌒 Solar Eclipse 2024</option>
+                <option value="space">🌍 Earth From Space</option>
+                <option value="myvideos">📋 My Custom Videos</option>
+            </select>
+            
+            <button onclick="stopAll()" title="Stop all videos">⏹️ Stop All</button>
+            <button onclick="playAll()" title="Play all videos">▶️ Start All</button>
+            <button onclick="muteAll()" title="Mute all videos">🔇 Mute All</button>
+            <button onclick="resetVideos()" title="Reset all custom videos">🔄 Reset All</button>
+        </div>
+        
+        <div class="add-video-section">
+            <label for="newVideo">Add YouTube Video ID:</label>
+            <input id="newVideo" type="text" value="EEIk7gwjgIM" placeholder="Enter YouTube video ID">
+            <button onclick="addNewVideo()" title="Add new video">➕ Add Video</button>
+        </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <div id="loading" class="loading" style="display: none;">
+        Loading videos...
+    </div>
+    
     <div id="container"></div>
+    
     <footer>
-      <p>© 2022 All Rights Reserved</p>
+        <p>© 2026 Neil Ghosh - Watch multiple videos simultaneously</p>
+        <p>Tip: Enter just the video ID from YouTube URLs (e.g., "dQw4w9WgXcQ" from youtube.com/watch?v=dQw4w9WgXcQ)</p>
     </footer>
 </body>
+</html>

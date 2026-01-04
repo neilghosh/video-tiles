@@ -1,132 +1,410 @@
+// Global variables
 var players = [];
+var localVideo = [];
 
+// Video feeds configuration
 var eclipseVideos = [
-  { key: "P9M_e3JbpLY", title: "Time And Date"},
-  { key: "2MJY_ptQW1o", title: "NASA Official" },
-  { key: "XwQDEzpnYkk", title: "Chuck's Astrophotography" },
-  { key: "Lb1kgHP5g80", title: "GRIFFITH OBSERVATORY" },
-  { key: "7B74-teYM2g", title: "Time" },
-  { key: "T8jK_f4_FiY", title: "Video From Space" },
-  { key: "wQ4U6z5-gxE", title: "The Sun" },
-  { key: "Dzjunyh_v1g", title: "First Post" },
-  { key: "LUAeGft7W6c", title: "Sky News" }
+    { key: "P9M_e3JbpLY", title: "Time And Date" },
+    { key: "2MJY_ptQW1o", title: "NASA Official" },
+    { key: "XwQDEzpnYkk", title: "Chuck's Astrophotography" },
+    { key: "Lb1kgHP5g80", title: "GRIFFITH OBSERVATORY" },
+    { key: "7B74-teYM2g", title: "Time" },
+    { key: "T8jK_f4_FiY", title: "Video From Space" },
+    { key: "wQ4U6z5-gxE", title: "The Sun" },
+    { key: "Dzjunyh_v1g", title: "First Post" },
+    { key: "LUAeGft7W6c", title: "Sky News" }
 ];
 
 var spaceVideos = [
-  { key: "EEIk7gwjgIM", title: "NASA ISS Live Stream" },
-  { key: "DDU-rZs-Ic4", title: "Space Official" },
-  { key: "21X5lGlDOfg", title: "NASA TV" },
-  { key: "5_rLJNq7Rw8", title: "Earth From Sace" }
+    { key: "EEIk7gwjgIM", title: "NASA ISS Live Stream" },
+    { key: "DDU-rZs-Ic4", title: "Space Official" },
+    { key: "21X5lGlDOfg", title: "NASA TV" },
+    { key: "5_rLJNq7Rw8", title: "Earth From Space" },
+    { key: "jfKfPfyJRdk", title: "Lofi Space Radio" },
+    { key: "4O2JK_94g3Y", title: "Earth 4K" }
 ];
 
-var myeVideos = [
-];
+var myVideos = [];
 
+// Feed configuration
+var feeds = {
+    "eclipse": eclipseVideos,
+    "space": spaceVideos,
+    "myvideos": myVideos
+};
 
-var feeds = [];
-feeds["eclipse"] = eclipseVideos;
-feeds["space"] = spaceVideos;
-feeds["myvideos"] = myeVideos;
-
+// Constants for localStorage
 const DEFAULT_FEED = "eclipse";
 const DEFAULT_FEED_STORAGE_KEY = "default_feed";
 const CUSTOM_VIDEOS_STORAGE_KEY = "my_videos";
 
-var localVideo = [];
-
-function onYouTubeIframeAPIReady() {
-  var defaultFeed = localStorage.getItem(DEFAULT_FEED_STORAGE_KEY) == undefined ? DEFAULT_FEED : localStorage.getItem(DEFAULT_FEED_STORAGE_KEY);
-  $("#feeds").val(defaultFeed);
-  renderPlayers(feeds[defaultFeed]);
-}
-
-function renderVideos() {
-  videos = getVideosFromFeed()
-  localStorage.setItem(DEFAULT_FEED_STORAGE_KEY, $("#feeds").val());
-  renderPlayers(videos);
-}
-
-function getVideosFromFeed() {
-  var feed = $("#feeds").val();
-  return feeds[feed];
-}
-
-function renderPlayers() {
-  clearPlayers();
-  var localVideo = JSON.parse(localStorage.getItem(getLocalVideosForCurrentFeed()));
-  videos = getVideosFromFeed();
-  videos = videos.concat(localVideo);
-  videos.forEach((obj, i) => {
-    addVideo("player" + i, obj.key)
-  })
-}
-
-function getLocalVideosForCurrentFeed() {
-  return $("#feeds").val()+"_"+CUSTOM_VIDEOS_STORAGE_KEY;
-}
-
-function clearPlayers() {
-  players = [];
-  $("#container").html("");
-}
-
-function addNewVideo() {
-  var videoId = $("#newVideo").val();
-  var playerId = "player" + (players.length + 1);
-  addVideo(playerId, videoId);
-  localVideo.push({ key: videoId, title: "" });
-  localStorage.setItem(getLocalVideosForCurrentFeed(), JSON.stringify(localVideo));
-}
-
-function addVideo(videoId, key) {
-  $("#container").append(`
-  <div id=`+ videoId + `/>
-`);
-
-  player = new YT.Player(videoId, {
-    height: '315',
-    width: '560',
-    videoId: key,
-    playerVars: { 'autoplay': 1, 'controls': 1 },
-    events: {
-      'onReady': onPlayerReady,
-      'onStateChange': onPlayerStateChange
+// Utility functions
+function showLoading(show) {
+    const loadingDiv = document.getElementById('loading');
+    if (loadingDiv) {
+        loadingDiv.style.display = show ? 'block' : 'none';
     }
-  });
-  players.push(player);
 }
 
+function showError(message) {
+    const container = document.getElementById('container');
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    container.appendChild(errorDiv);
+    
+    // Auto-remove error after 5 seconds
+    setTimeout(() => {
+        if (errorDiv.parentNode) {
+            errorDiv.parentNode.removeChild(errorDiv);
+        }
+    }, 5000);
+}
+
+function isValidYouTubeVideoId(videoId) {
+    // Basic validation for YouTube video ID format
+    const regex = /^[a-zA-Z0-9_-]{11}$/;
+    return regex.test(videoId);
+}
+
+// YouTube API ready callback
+function onYouTubeIframeAPIReady() {
+    console.log('YouTube IFrame API ready');
+    
+    try {
+        // Get saved feed preference or use default
+        const defaultFeed = localStorage.getItem(DEFAULT_FEED_STORAGE_KEY) || DEFAULT_FEED;
+        
+        // Set the dropdown to the saved preference
+        const feedSelect = document.getElementById('feeds');
+        if (feedSelect) {
+            feedSelect.value = defaultFeed;
+        }
+        
+        // Load and render videos
+        renderVideos();
+    } catch (error) {
+        console.error('Error initializing video tiles:', error);
+        showError('Failed to initialize video player. Please refresh the page.');
+    }
+}
+
+// Render videos based on current feed selection
+function renderVideos() {
+    try {
+        showLoading(true);
+        
+        const currentFeed = getCurrentFeed();
+        console.log('Rendering videos for feed:', currentFeed);
+        
+        // Save current feed preference
+        localStorage.setItem(DEFAULT_FEED_STORAGE_KEY, currentFeed);
+        
+        // Get videos from current feed
+        const videos = getVideosFromFeed();
+        
+        // Render the video players
+        renderPlayers(videos);
+        
+        showLoading(false);
+    } catch (error) {
+        console.error('Error rendering videos:', error);
+        showError('Failed to load videos. Please try again.');
+        showLoading(false);
+    }
+}
+
+// Get current feed selection
+function getCurrentFeed() {
+    const feedSelect = document.getElementById('feeds');
+    return feedSelect ? feedSelect.value : DEFAULT_FEED;
+}
+
+// Get videos from current feed including custom videos
+function getVideosFromFeed() {
+    const currentFeed = getCurrentFeed();
+    const baseVideos = feeds[currentFeed] || [];
+    
+    // Get custom videos for current feed
+    const customVideos = getLocalVideosForCurrentFeed();
+    
+    // Combine base videos with custom videos
+    return [...baseVideos, ...customVideos];
+}
+
+// Get custom videos for current feed from localStorage
+function getLocalVideosForCurrentFeed() {
+    try {
+        const storageKey = getCurrentFeed() + "_" + CUSTOM_VIDEOS_STORAGE_KEY;
+        const savedVideos = localStorage.getItem(storageKey);
+        return savedVideos ? JSON.parse(savedVideos) : [];
+    } catch (error) {
+        console.error('Error loading custom videos:', error);
+        return [];
+    }
+}
+
+// Clear all current players
+function clearPlayers() {
+    // Stop and destroy all current players
+    players.forEach(player => {
+        try {
+            if (player && typeof player.destroy === 'function') {
+                player.destroy();
+            }
+        } catch (error) {
+            console.warn('Error destroying player:', error);
+        }
+    });
+    
+    players = [];
+    
+    // Clear container HTML
+    const container = document.getElementById('container');
+    if (container) {
+        container.innerHTML = '';
+    }
+}
+
+// Render video players
+function renderPlayers(videos) {
+    clearPlayers();
+    
+    if (!videos || videos.length === 0) {
+        const container = document.getElementById('container');
+        if (container) {
+            container.innerHTML = '<div class="loading">No videos available for this feed. Add some custom videos!</div>';
+        }
+        return;
+    }
+    
+    videos.forEach((video, index) => {
+        if (video && video.key && isValidYouTubeVideoId(video.key)) {
+            const playerId = `player_${index}`;
+            addVideo(playerId, video.key, video.title);
+        } else {
+            console.warn('Invalid video data:', video);
+        }
+    });
+}
+
+// Add a new video to the container
+function addVideo(playerId, videoId, title) {
+    try {
+        const container = document.getElementById('container');
+        if (!container) {
+            throw new Error('Container element not found');
+        }
+        
+        // Create video wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video-wrapper new-video';
+        
+        // Add title if provided
+        if (title) {
+            const titleElement = document.createElement('div');
+            titleElement.className = 'video-title';
+            titleElement.textContent = title;
+            wrapper.appendChild(titleElement);
+        }
+        
+        // Create player div
+        const playerDiv = document.createElement('div');
+        playerDiv.id = playerId;
+        wrapper.appendChild(playerDiv);
+        
+        container.appendChild(wrapper);
+        
+        // Create YouTube player
+        const player = new YT.Player(playerId, {
+            height: '315',
+            width: '560',
+            videoId: videoId,
+            playerVars: { 
+                'autoplay': 0,  // Don't autoplay by default
+                'controls': 1,
+                'modestbranding': 1,
+                'rel': 0
+            },
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange,
+                'onError': onPlayerError
+            }
+        });
+        
+        players.push(player);
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+            wrapper.classList.remove('new-video');
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error adding video:', error);
+        showError(`Failed to add video: ${error.message}`);
+    }
+}
+
+// YouTube player event handlers
 function onPlayerReady(event) {
-  event.target.mute();
-  event.target.playVideo();
+    console.log('Player ready:', event.target.getVideoData().title);
+    // Don't auto-mute or auto-play by default
 }
 
 function onPlayerStateChange(event) {
-  if (event.data == YT.PlayerState.ENDED) {
-    // player2.playVideo();
-  }
+    // Handle player state changes if needed
+    const state = event.data;
+    if (state === YT.PlayerState.ENDED) {
+        console.log('Video ended:', event.target.getVideoData().title);
+    }
 }
 
-function resetVideos() {
-  localVideo = [];
-  localStorage.setItem(CUSTOM_VIDEOS_STORAGE_KEY, JSON.stringify(localVideo))
-  renderPlayers();
+function onPlayerError(event) {
+    const error = event.data;
+    console.error('YouTube player error:', error);
+    
+    let errorMessage = 'Video playback error';
+    switch (error) {
+        case 2:
+            errorMessage = 'Invalid video ID';
+            break;
+        case 5:
+            errorMessage = 'HTML5 player error';
+            break;
+        case 100:
+            errorMessage = 'Video not found or private';
+            break;
+        case 101:
+        case 150:
+            errorMessage = 'Video unavailable in embedded player';
+            break;
+    }
+    
+    showError(errorMessage);
+}
+
+// Control functions
+function addNewVideo() {
+    try {
+        const newVideoInput = document.getElementById('newVideo');
+        if (!newVideoInput) {
+            throw new Error('Video input field not found');
+        }
+        
+        const videoId = newVideoInput.value.trim();
+        
+        if (!videoId) {
+            showError('Please enter a YouTube video ID');
+            return;
+        }
+        
+        if (!isValidYouTubeVideoId(videoId)) {
+            showError('Please enter a valid YouTube video ID (11 characters)');
+            return;
+        }
+        
+        // Add to current players immediately
+        const playerId = `player_custom_${Date.now()}`;
+        addVideo(playerId, videoId, 'Custom Video');
+        
+        // Save to localStorage for current feed
+        const customVideos = getLocalVideosForCurrentFeed();
+        customVideos.push({ key: videoId, title: 'Custom Video' });
+        
+        const storageKey = getCurrentFeed() + "_" + CUSTOM_VIDEOS_STORAGE_KEY;
+        localStorage.setItem(storageKey, JSON.stringify(customVideos));
+        
+        // Clear the input
+        newVideoInput.value = '';
+        
+        console.log('Added custom video:', videoId);
+        
+    } catch (error) {
+        console.error('Error adding new video:', error);
+        showError(`Failed to add video: ${error.message}`);
+    }
 }
 
 function stopAll() {
-  players.forEach((obj, i) => {
-    obj.stopVideo();
-  })
+    players.forEach(player => {
+        try {
+            if (player && typeof player.stopVideo === 'function') {
+                player.stopVideo();
+            }
+        } catch (error) {
+            console.warn('Error stopping player:', error);
+        }
+    });
+    console.log('Stopped all videos');
 }
 
 function playAll() {
-  players.forEach((obj, i) => {
-    obj.playVideo();
-  })
+    players.forEach(player => {
+        try {
+            if (player && typeof player.playVideo === 'function') {
+                player.playVideo();
+            }
+        } catch (error) {
+            console.warn('Error playing player:', error);
+        }
+    });
+    console.log('Started all videos');
 }
 
 function muteAll() {
-  players.forEach((obj, i) => {
-    obj.mute();
-  })
+    players.forEach(player => {
+        try {
+            if (player && typeof player.mute === 'function') {
+                player.mute();
+            }
+        } catch (error) {
+            console.warn('Error muting player:', error);
+        }
+    });
+    console.log('Muted all videos');
 }
+
+function resetVideos() {
+    try {
+        // Clear custom videos for current feed
+        const storageKey = getCurrentFeed() + "_" + CUSTOM_VIDEOS_STORAGE_KEY;
+        localStorage.removeItem(storageKey);
+        
+        // Re-render videos
+        renderVideos();
+        
+        console.log('Reset custom videos for current feed');
+        
+    } catch (error) {
+        console.error('Error resetting videos:', error);
+        showError('Failed to reset videos. Please refresh the page.');
+    }
+}
+
+// Add keyboard shortcuts
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('keydown', function(event) {
+        // Only handle shortcuts if not typing in an input field
+        if (event.target.tagName.toLowerCase() === 'input') {
+            return;
+        }
+        
+        switch (event.code) {
+            case 'Space':
+                event.preventDefault();
+                playAll();
+                break;
+            case 'KeyS':
+                event.preventDefault();
+                stopAll();
+                break;
+            case 'KeyM':
+                event.preventDefault();
+                muteAll();
+                break;
+        }
+    });
+});
+
+console.log('Video Tiles script loaded successfully');

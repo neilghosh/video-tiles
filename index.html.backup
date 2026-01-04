@@ -1,0 +1,39 @@
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="tilevideo.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-5167155-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-5167155-1');
+  </script>
+
+</head>
+<style>
+</style>
+
+<body>
+  <label for="Feeds">Choose a Feed:</label>
+  <select name="Feeds" id="feeds" onchange="renderVideos()">
+    <option value="eclipse" selected>Solar Eclipse 08-APR-2024</option>
+    <option value="space">Earth From Sky</option>
+    <option value="myvideos">My Videos</option>
+  </select>
+  <button onclick="stopAll()">Stop All</button>
+  <button onclick="playAll()">Start All</button>
+  <button onclick="muteAll()">Mute All</button>
+  <button onclick="addNewVideo()">Add Video</button>
+  <input id="newVideo" type="text" value="EEIk7gwjgIM">
+  <button onclick="resetVideos()">Reset All</button>
+
+  <hr>
+  <div>
+    <div id="container"></div>
+    <footer>
+      <p>© 2022 All Rights Reserved</p>
+    </footer>
+</body>
